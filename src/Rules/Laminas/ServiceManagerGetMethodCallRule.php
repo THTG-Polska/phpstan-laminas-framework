@@ -18,6 +18,7 @@ use PHPStan\Type\ObjectType;
 use PHPStan\Type\Type;
 use Psr\Container\ContainerInterface as PsrContainerInterface;
 use ReflectionClass;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @implements \PHPStan\Rules\Rule<\PhpParser\Node\Expr\MethodCall>
@@ -104,8 +105,11 @@ final class ServiceManagerGetMethodCallRule implements Rule
     /** @phpstan-assert-if-true ObjectType $type */
     private function isTypeInstanceOfContainer(Type $type): bool
     {
-        return (new ObjectType(ServiceLocatorInterface::class))->isSuperTypeOf($type)->yes()
-            || (new ObjectType(InteropContainerInterface::class))->isSuperTypeOf($type)->yes()
-            || (new ObjectType(PsrContainerInterface::class))->isSuperTypeOf($type)->yes();
+        return (new ObjectType(ContainerInterface::class))->isSuperTypeOf($type)->no()
+            && (
+                (new ObjectType(ServiceLocatorInterface::class))->isSuperTypeOf($type)->yes()
+                || (new ObjectType(InteropContainerInterface::class))->isSuperTypeOf($type)->yes()
+                || (new ObjectType(PsrContainerInterface::class))->isSuperTypeOf($type)->yes()
+            );
     }
 }
